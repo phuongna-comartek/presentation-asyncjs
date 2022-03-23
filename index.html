@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+
+    <title>JS Promises</title>
+
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/reveal.css" />
+    <link rel="stylesheet" href="css/theme/black.css" />
+
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="lib/css/monokai.css" />
+
+    <style>
+      :root {
+        --title-color: #43248c;
+      }
+
+      em {
+        color: #47fcff;
+      }
+
+      .reveal a {
+        color: #32e875;
+      }
+
+      .reveal code {
+        color: #47fcff;
+      }
+
+      .reveal pre code {
+        color: #ddd;
+      }
+
+      strong.scare {
+        color: #ff2828;
+        font-family: fantasy;
+      }
+    </style>
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.type = "text/css";
+      link.href = window.location.search.match(/print-pdf/gi)
+        ? "css/print/pdf.css"
+        : "css/print/paper.css";
+      document.getElementsByTagName("head")[0].appendChild(link);
+    </script>
+  </head>
+
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section
+          data-markdown
+          data-notes="Introduce: this presentation gonna be quick, assuming audience have
+		  some basic knowledge on the subject"
+          data-background-image="images/gears-on-the-bottom_wide.jpg"
+          data-background-opacity="0.4"
+        >
+          <textarea data-template>
+						## Asynchronous programing
+
+						or:
+
+						Do this, then that.
+					</textarea
+          >
+        </section>
+
+        <section
+          data-notes="Disclamer for Original author"
+          data-markdown
+          data-background-color="var(--title-color)"
+        >
+          <textarea data-template>
+						### Credit
+						
+						Ⓒ Payton Swick
+
+						<small>Original slide</small>
+
+						<small>https://sirbrillig.github.io/js-promises-slides/</small>
+					</textarea
+          >
+        </section>
+
+        <section
+          data-notes="  -Javascript is a single threaded language, asynchronous, event
+		driven, mutli paradime,... other buzz words\n
+		- wonder why things can run in parallel"
+          data-markdown
+        >
+          <textarea data-template>
+						### JavaScript is <em>single-threaded</em>
+
+						That mean it only executes one thing at a time.
+						
+						<p class="fragment"><em>But wait</em> 🤔 how do websites seemingly do multiple task in parallel? </p>
+					</textarea
+          >
+        </section>
+
+        <section
+          data-notes="the answer to prev quest || prepare to explane some next rules"
+          data-markdown
+          data-background-color="var(--title-color)"
+        >
+          <textarea data-template>
+						### The Event Loop
+					</textarea
+          >
+        </section>
+
+        <section
+          data-markdown
+          data-notes="JS run to completion rule, remind to have visualize callstack later, also event queue"
+        >
+          <textarea data-template>
+						JavaScript executes statements in the current block ("call stack") until they are all complete.
+
+						<p class="fragment">Then it loops back around and checks for new statements in the <em>queue</em>.</p>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						### The Event Queue
+
+						Some things that can add to the queue:
+
+						- user events (clicks, typing, etc.)
+						- browser events (loading, leaving, etc.)
+						- network events
+						- data events
+						- the `setTimeout()` function
+					</textarea
+          >
+        </section>
+        <section data-background-color="#efeefe" data-notes="Explane flow run ">
+          <img
+            data-src="https://blogchanhday.com/p/javascript-tong-quan-ve-engine-runtime-call-stack-va-event-loop/img/event-loop-and-callback-queue-in-action.gif"
+            alt="event loop decription"
+            width="800"
+            height="568"
+          />
+        </section>
+
+        <section data-markdown data-background-color="var(--title-color)">
+          <textarea data-template>
+						### Callbacks
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						We can add a block of code to the queue that will be executed when an event occurs. This is a callback function.
+
+						<pre><code data-trim data-noescape>
+							document.addEventListener('DOMContentLoaded', function() {
+								console.log('The page is ready!');
+							});
+						</code></pre>
+
+						<pre><code data-trim data-noescape>
+							setTimeout(function() {
+								console.log('One second has passed.');
+							}, 1000);
+						</code></pre>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						But what if you want to chain multiple callbacks together?
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							fillKettle(); // wait until it's finished, then...
+							boilWater(); // wait until it's finished, then...
+							addLeaves('green'); // wait until it's finished, then...
+							steepTea('1 minute');
+						</code></pre>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						Let's try using callbacks.
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							fillKettle(function() {
+								boilWater(function() {
+									addLeaves('green', function() {
+										steepTea('1 minute');
+									});
+								});
+							});
+						</code></pre>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						<strong class="scare">Callback Hell!</strong>
+
+						😱
+
+						<pre><code data-trim class="JavaScript">
+							fillKettle(function() {
+								boilWater(function() {
+									addLeaves('green', function() {
+										steepTea('1 minute', function() {
+											pourTea(function() {
+                        serveTea(function() {
+                          drinkTea();
+                        });
+											});
+										});
+									});
+								});
+							});
+						</code></pre>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown data-background-color="var(--title-color)">
+          <textarea data-template>
+						### Promises
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						Promises are the solution to callback hell.
+					</textarea
+          >
+        </section>
+
+        <section data-markdown data-background-color="var(--title-color)">
+          <textarea data-template>
+						> The Promise object represents the eventual completion (or failure) of an asynchronous operation, and its resulting value.
+
+						<small>https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise</small>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						A Promise is in one of these states:
+
+						- _pending_: initial state, neither fulfilled nor rejected.
+						- _fulfilled_: meaning that the operation completed successfully.
+						- _rejected_: meaning that the operation failed.
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						Each `Promise` object has a `then()` method that accepts a callback. The callback will be called when the operation is complete.
+						<div class="fragment fade-in">
+							<div class="fragment fade-in">
+								<pre><code data-trim data-noescape class="JavaScript">
+									doThis().then(doThat);
+								</code></pre>
+							</div>
+							<div class="fragment fade-in">
+								<pre><code data-trim data-noescape class="JavaScript">
+									doThis().then(doThat).then(doSomethingElse);
+								</code></pre>
+							</div>
+						</div>
+
+						<!-- <div class="fragment">
+
+						`then()` always returns a Promise, so we can chain them together.
+
+						</div> -->
+					</textarea
+          >
+        </section>
+
+        <!-- <section data-markdown>
+				</section> -->
+
+        <section data-markdown>
+          <textarea data-template>
+						It's easier to read if we put them vertically:
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							doThis()
+							.then(doThat)
+							.then(doSomethingElse);
+						</code></pre>
+					</textarea
+          >
+        </section>
+        <!-- 
+        <section data-markdown>
+          <textarea data-template>
+						Here's that callback code again:
+
+						<small>(Switched to fat arrow functions)</small>
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							fillKettle(() => {
+								boilWater(() => {
+									addLeaves('green', () => {
+										steepTea('1 minute');
+									});
+								});
+							});
+						</code></pre>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						Let's try again using Promises.
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							fillKettle()
+							.then(boilWater)
+							.then(() => addLeaves('green'))
+							.then(() => steepTea('1 minute'));
+						</code></pre>
+					</textarea
+          >
+        </section> -->
+
+        <section data-markdown>
+          <textarea data-template>
+						Remember this?
+
+						<pre><code data-trim class="JavaScript">
+							fillKettle(function() {
+								boilWater(function() {
+									addLeaves('green', function() {
+										steepTea('1 minute', function() {
+											pourTea(function() {
+                        serveTea(function() {
+                          drinkTea();
+                        });
+											});
+										});
+									});
+								});
+							});
+						</code></pre>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						It doesn't matter how many callbacks we need, there's no nesting.
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							fillKettle()
+							.then(boilWater)
+							.then(() => addLeaves('green'))
+							.then(() => steepTea('1 minute'))
+							.then(pourTea)
+							.then(serveTea)
+							.then(drinkTea);
+						</code></pre>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						`then()` always returns a `Promise` object.
+
+						If the callback does not return a Promise, its return value is converted into a Promise automatically.
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						### Creating Promises
+
+						`Promise` is a top-level constructor function.
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							const myPromise = new Promise();
+						</code></pre>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						The Promise constructor function takes one argument, which is a function to run immediately. It should do something asynchronous.
+
+						When it's done, it should call `resolve()` or `reject()`, which are arguments to the function.
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							const myPromise = new Promise(function (resolve, reject) {
+								setTimeout(function() {
+									resolve();
+								}, 1000) // Takes 1 second to resolve
+							});
+						</code></pre>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						Any `then()` callbacks will be called when `resolve()` is called inside the Promise function.
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							const myPromise = new Promise(function (resolve, reject) {
+								setTimeout(function() {
+									resolve();
+								}, 1000);
+							});
+
+							myPromise.then(() => console.log('all done!'));
+							console.log('starting operation...');
+						</code></pre>
+
+						<pre class="fragment"><code data-trim data-noescape class="markdown">
+							starting operation...
+						</code></pre>
+						<pre class="fragment"><code data-trim data-noescape class="markdown">
+							all done!
+						</code></pre>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						If `resolve()` is passed an argument, that argument is provided to the callback in `then()`.
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							const myPromise = new Promise(function (resolve, reject) {
+								setTimeout(function() {
+									resolve('Hong Shui Oolong');
+								}, 1000) // Takes 1 second to resolve
+							});
+
+							myPromise.then(tea => console.log(`Today's tea is ${tea}`));
+						</code></pre>
+
+						<pre><code data-trim data-noescape class="markdown">
+							Today's tea is Hong Shui Oolong
+						</code></pre>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown data-background-color="var(--title-color)">
+          <textarea data-template>
+						### fetch
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						`fetch()` is a Web API function in JavaScript that makes HTTP requests.
+
+						It returns a `Promise` that resolves when the request is complete.
+					</textarea
+          >
+        </section>
+
+        <!-- <section data-markdown>
+          <textarea data-template>
+						The result of `fetch()` must be converted to something (like JSON) before it can be used. This process also returns a `Promise`.
+					</textarea
+          >
+        </section> -->
+
+        <section data-markdown>
+          <textarea data-template>
+						Using `fetch()` to get JSON data from a web server:
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							fetch('https://jsonplaceholder.typicode.com/todos/1')
+							.then(response => response.json())
+							.then(json => console.log(json))
+						</code></pre>
+
+						<pre class="fragment"><code data-trim data-noescape class="json">
+{
+  "userId": 1,
+  "id": 1,
+  "title": "delectus aut autem",
+  "completed": false
+}
+						</code></pre>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown data-background-color="var(--title-color)">
+          <textarea data-template>
+						### Handling Errors
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						If a Promise fails, its `reject()` function is called instead of `resolve()`.
+
+						This will cause it to _skip_ all `then()` callbacks and instead call the nearest `catch()`.
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						### Catch
+
+						Every Promise object also has a `catch()` method, which works just like `then()`. It takes one callback argument which is called if the Promise fails.
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							boilWater()
+							.catch(() => console.error('There was a problem making tea.'))
+						</code></pre>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						`catch()` will be called for any unhandled rejection in any Promise in the chain.
+
+						The following `catch()` is called if any of the steps fails (and the chain will stop):
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							fillKettle()
+							.then(boilWater)
+							.then(() => addLeaves('green'))
+							.then(() => steepTea('1 minute'))
+							.catch(() => console.error('There was a problem making tea.'))
+						</code></pre>
+					</textarea
+          >
+        </section>
+        <!-- 
+        <section data-markdown>
+          <textarea data-template>
+						`then()` (or `catch()`) will be called even if the Promise has _already_ resolved.
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							const done = new Promise(resolve => resolve('hello'))
+
+							done
+							.then(greeting => console.log(`${greeting}, my friend!`))
+						</code></pre>
+
+						<pre class="fragment"><code data-trim data-noescape class="markdown">
+							hello, my friend!
+						</code></pre>
+					</textarea
+          >
+        </section> -->
+
+        <!-- <section data-markdown>
+          <textarea data-template>
+						There's actually a shortcut for this pattern: `Promise.resolve()`
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							const done = Promise.resolve('hello')
+
+							done
+							.then(greeting => console.log(`${greeting}, my friend!`))
+						</code></pre>
+					</textarea
+          >
+        </section> -->
+
+        <section data-markdown>
+          <textarea data-template>
+						### Finally
+
+						If you need something to run no matter what, you can use `finally()`.
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							let isMakingTea = true;
+							boilWater()
+							.then(steepTea)
+							.catch(() => console.error('Failed to make tea.'))
+							.finally(() => {
+								isMakingTea = false;
+							});
+						</code></pre>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown data-background-color="var(--title-color)">
+          <textarea data-template>
+						### Multiple Promises
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						When you want to wait for several Promises to complete, you can use `Promise.all()`.
+
+						It accepts an array of Promises and returns a new Promise that will complete when all the others are complete.
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						`Promise.all()` is useful to run things in "parallel"*, like loading resources for a game.
+
+						<small>*Async but still serial.</small>
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							const imageLoader = loadImages();
+							const soundLoader = loadSounds();
+							const movieLoader = loadMovies();
+							const loader = Promise.all([
+								imageLoader,
+								soundLoader,
+								movieLoader,
+							]);
+
+							loader.then(startGame);
+						</code></pre>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown data-background-color="var(--title-color)">
+          <textarea data-template>
+						### Await, there's more!
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						A new addition to the language is the `await` keyword.
+
+						This allows async functions to be written as if they were synchronous.
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						Remember this?
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							fetch('https://jsonplaceholder.typicode.com/todos/1')
+							.then(response => response.json())
+							.then(json => console.log(json))
+						</code></pre>
+
+						Using await:
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							const response = await fetch('https://jsonplaceholder.typicode.com/todos/1')
+							const json = await response.json();
+							console.log(json);
+						</code></pre>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown data-background-color="var(--title-color)">
+          <textarea data-template>
+						> The await expression causes async function execution to pause until a Promise is resolved... and to resume execution of the async function after fulfillment. When resumed, the value of the await expression is that of the fulfilled Promise.
+
+						<small>https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await</small>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						However, you cannot use `await` outside of a function, and that function _must_ be marked `async`.
+
+						This guarantees that the function will always return a Promise.
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							async function getDataFromServer() {
+								const response = await fetch('https://jsonplaceholder.typicode.com/todos/1')
+								const json = await response.json();
+								return json;
+							}
+
+							async function main() {
+							  console.log(await getDataFromServer());
+							}
+
+							main();
+						</code></pre>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						Here's that tea example:
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							function main() {
+								boilWater()
+								.then(() => addLeaves('green'))
+								.then(() => steepTea('1 minute'))
+								.then(drinkTea);
+							}
+							main();
+						</code></pre>
+
+						And with await:
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							async function main() {
+								await boilWater();
+								await addLeaves('green');
+								await steepTea('1 minute'));
+								drinkTea();
+							}
+							main();
+						</code></pre>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						### Handling errors with await
+
+						When using `await`, if the Promise is rejected, the await expression _throws_ the rejected value.
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						Thrown Promise rejections bubble up as normal.
+
+						<pre><code data-trim data-noescape class="JavaScript">
+							async function main() {
+								try {
+									await fillKettle();
+									await boilWater();
+									await addLeaves('green');
+									await steepTea('1 minute'));
+									drinkTea();
+								} catch (error) {
+									console.error('There was a problem making tea.');
+								}
+							}
+
+							main();
+						</code></pre>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown data-background-color="var(--title-color)">
+          <textarea data-template>
+						### Top Level Await
+					</textarea
+          >
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+						"Top Level Await" abvailable since node 14. You can `await` outside of an `async` function.
+
+						<small>https://github.com/tc39/proposal-top-level-await</small>
+
+						<small>Or you can do this in <a href="https://developers.google.com/web/updates/2017/08/devtools-release-notes#await">Chrome Devtools</a>.</small>
+					</textarea
+          >
+        </section>
+
+        <section data-markdown data-background-color="var(--title-color)">
+          <textarea data-template>
+						### And that's all 😃
+					</textarea
+          >
+        </section>
+
+        <section data-background-color="#d2ed9a">
+          <img
+            data-src="images/qna.webp"
+            alt="thanks"
+            width="100%"
+            height="100%"
+          />
+        </section>
+      </div>
+    </div>
+
+    <script src="js/reveal.js"></script>
+
+    <script>
+      // More info about config & dependencies:
+      // - https://github.com/hakimel/reveal.js#configuration
+      // - https://github.com/hakimel/reveal.js#dependencies
+      Reveal.initialize({
+        hash: true,
+        dependencies: [
+          { src: "plugin/markdown/marked.js" },
+          { src: "plugin/markdown/markdown.js" },
+          { src: "plugin/notes/notes.js", async: true },
+          { src: "plugin/highlight/highlight.js", async: true },
+        ],
+      });
+      const body = document.querySelector("body");
+      body.addEventListener("keydown", async (e) => {
+        if (e.key === "f" && e.ctrlKey) {
+          if (window.innerHeight == screen.height) {
+            document.exitFullscreen();
+          } else {
+            await body.requestFullscreen();
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
