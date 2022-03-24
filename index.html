@@ -239,16 +239,19 @@
         <section data-markdown data-background-color="var(--title-color)">
           <textarea data-template>
 						### Promises
+						<div class="fragment">
+							Promises are the solution to callback hell.
+						</div>
 					</textarea
           >
         </section>
 
-        <section data-markdown>
+        <!-- <section data-markdown>
           <textarea data-template>
 						Promises are the solution to callback hell.
 					</textarea
           >
-        </section>
+        </section> -->
 
         <section data-markdown data-background-color="var(--title-color)">
           <textarea data-template>
@@ -284,6 +287,13 @@
 									doThis().then(doThat).then(doSomethingElse);
 								</code></pre>
 							</div>
+							<div class="fragment fade-in">
+						<pre><code data-trim data-noescape class="JavaScript">
+							doThis()
+							.then(doThat)
+							.then(doSomethingElse);
+						</code></pre>
+						</div>
 						</div>
 
 						<!-- <div class="fragment">
@@ -298,18 +308,6 @@
         <!-- <section data-markdown>
 				</section> -->
 
-        <section data-markdown>
-          <textarea data-template>
-						It's easier to read if we put them vertically:
-
-						<pre><code data-trim data-noescape class="JavaScript">
-							doThis()
-							.then(doThat)
-							.then(doSomethingElse);
-						</code></pre>
-					</textarea
-          >
-        </section>
         <!-- 
         <section data-markdown>
           <textarea data-template>
@@ -393,7 +391,10 @@
           >
         </section>
 
-        <section data-markdown>
+        <section
+          data-markdown
+          data-notes="the way to create promise your self -- usually you dont"
+        >
           <textarea data-template>
 						### Creating Promises
 
@@ -529,6 +530,12 @@
 					</textarea
           >
         </section>
+        As for section 5.1.1 in developer Guideline. -I believe this app does
+        not fall under the category of highly regulated field (we provide house
+        cleaning service) -For sensitive data, we only use phone number as a
+        mean to authenticate user account (of course user gonna provide their
+        home address when they schedule a cleaning session) Can you elaborate
+        more about this issue, I'll gladly provide further information if needed
 
         <section data-markdown>
           <textarea data-template>
